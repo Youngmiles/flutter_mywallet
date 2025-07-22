@@ -1,28 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
+import 'signgin.dart';
+import 'forgotpassword.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({Key? key}) : super(key: key);
+class LoginPage extends StatelessWidget {
+  LoginPage({Key? key}) : super(key: key);
 
-  @override
-  _SignUpPageState createState() => _SignUpPageState();
-}
-
-class _SignUpPageState extends State<SignUpPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +20,7 @@ class _SignUpPageState extends State<SignUpPage> {
         backgroundColor: Colors.blue.shade900,
         elevation: 0,
         title: const Text(
-          'Sign Up',
+          'Login',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,
@@ -50,9 +38,9 @@ class _SignUpPageState extends State<SignUpPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Email Field
+                // Email Input Field
                 TextFormField(
-                  controller: _emailController,
+                  controller: emailController,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Email',
@@ -68,9 +56,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       borderSide: const BorderSide(color: Colors.orangeAccent),
                     ),
                   ),
+                  keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter an email';
+                      return 'Please enter your email';
                     }
                     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                       return 'Please enter a valid email';
@@ -80,9 +69,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Password Field
+                // Password Input Field
                 TextFormField(
-                  controller: _passwordController,
+                  controller: passwordController,
                   obscureText: true,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
@@ -101,58 +90,21 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Confirm Password Field
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  obscureText: true,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    labelStyle: const TextStyle(color: Colors.white70),
-                    filled: true,
-                    fillColor: Colors.blue.shade800,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.orangeAccent),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return 'Please enter your password';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 20),
 
-                // Sign Up Button
+                // Login Button
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       try {
-                        await _auth.createUserWithEmailAndPassword(
-                          email: _emailController.text.trim(),
-                          password: _passwordController.text.trim(),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Account created successfully!')),
+                        await _auth.signInWithEmailAndPassword(
+                          email: emailController.text.trim(),
+                          password: passwordController.text.trim(),
                         );
                         Navigator.pushReplacement(
                           context,
@@ -160,10 +112,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         );
                       } on FirebaseAuthException catch (e) {
                         String errorMessage;
-                        if (e.code == 'weak-password') {
-                          errorMessage = 'The password provided is too weak.';
-                        } else if (e.code == 'email-already-in-use') {
-                          errorMessage = 'The account already exists for that email.';
+                        if (e.code == 'user-not-found') {
+                          errorMessage = 'No user found for that email.';
+                        } else if (e.code == 'wrong-password') {
+                          errorMessage = 'Wrong password provided.';
                         } else {
                           errorMessage = 'An error occurred. Please try again.';
                         }
@@ -181,19 +133,36 @@ class _SignUpPageState extends State<SignUpPage> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: const Text(
-                    'Sign Up',
+                    'Login',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 15),
 
-                // Already have an account? Login
+                // Forgot Password
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+                    );
                   },
                   child: const Text(
-                    'Already have an account? Login',
+                    'Forgot Password?',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ),
+
+                // Sign Up
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SignUpPage()),
+                    );
+                  },
+                  child: const Text(
+                    'Don’t have an account? Sign Up',
                     style: TextStyle(color: Colors.white70),
                   ),
                 ),

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "327812103494",
+    "project_id": "mywallet-aab07",
+    "storage_bucket": "mywallet-aab07.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327812103494:android:b47fff1010cb2a569cf947",
+        "android_client_info": {
+          "package_name": "com.example.mywallet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5T6lE1s0YZpJny7ElVY-TXog6mx2q1fk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
